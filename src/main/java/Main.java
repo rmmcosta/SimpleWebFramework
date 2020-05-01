@@ -9,21 +9,9 @@ import java.util.Arrays;
 public class Main {
     public static void main(String[] args) {
         int portNumber = Integer.parseInt(args[0]);
+        App app = new App(new Router());
         try {
-            ServerSocket serverSocket = new ServerSocket(portNumber);
-            serverSocket.setSoTimeout(10000);
-            while (true) {
-                Socket clientSocket = serverSocket.accept();
-                InputStream input = clientSocket.getInputStream();
-                OutputStream output = clientSocket.getOutputStream();
-                byte[] buffer = new byte[1000];
-                int total = input.read(buffer);
-                String request = new String(Arrays.copyOfRange(buffer, 0, total));
-                System.out.println(request);
-                String response = "HTTP/1.1 200 OK\r\n\r\nHello World!";
-                output.write(response.getBytes());
-                clientSocket.close();
-            }
+            app.start(portNumber, 20000);
         } catch (IOException e) {
             e.printStackTrace();
         }

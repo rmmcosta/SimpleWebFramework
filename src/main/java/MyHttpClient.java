@@ -19,23 +19,29 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class HttpClientTest {
+public class MyHttpClient {
+    private final String uri;
+
+    public MyHttpClient(String uri) {
+        this.uri = uri;
+    }
+
     public static void main(String[] args) {
-        HttpClientTest httpClientTest = new HttpClientTest();
+        String uri = "http://localhost:8080";
+        MyHttpClient myHttpClient = new MyHttpClient(uri);
         try {
-            String uri = "http://localhost:8080";
             System.out.println("get");
-            httpClientTest.get(uri);
+            myHttpClient.get();
             System.out.println("apache get");
-            httpClientTest.apacheGet(uri);
+            myHttpClient.apacheGet();
             System.out.println("jcabi get");
-            httpClientTest.jcabiGet(uri);
+            myHttpClient.jcabiGet();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void get(String uri) throws Exception {
+    public String get() throws Exception {
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(uri))
@@ -43,11 +49,12 @@ public class HttpClientTest {
 
         HttpResponse<String> response =
                 client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        System.out.println(response.body());
+        System.out.println("response headers->"+response.headers());
+        System.out.println("response body->"+response.body());
+        return String.valueOf(response.statusCode());
     }
 
-    public String apacheGet(String uri) {
+    public String apacheGet() {
         AtomicInteger theStatus = new AtomicInteger();
         try (final CloseableHttpClient httpclient = HttpClients.createDefault()) {
             final HttpGet httpget = new HttpGet(uri);
@@ -78,7 +85,7 @@ public class HttpClientTest {
         return theStatus.toString();
     }
 
-    public String jcabiGet(String uri) {
+    public String jcabiGet() {
         int status;
         Request request = new JdkRequest(uri);
         Response response = null;
